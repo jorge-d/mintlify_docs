@@ -1,0 +1,17 @@
+---
+title: 'Errors'
+description: 'What to expect on errors'
+openapi-schema: errors_object
+---
+
+## Introduction
+
+**Siit** uses standard HTTP response codes to indicate the success or failure of an API request:
+
+- `2xx` codes indicate success
+- `4xx` codes indicate an error that failed given the information provided
+- `5xx` codes indicate an error with Siit's servers
+
+An `error` and a `troubleshoot` key will be present in the response payload body. The `troubleshoot` key is a readable description of the error.
+
+More detailed HTTP response codes will be provided in endpoints documentation.

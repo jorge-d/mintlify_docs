@@ -1,0 +1,321 @@
+---
+openapi: 3.0.1
+info:
+  title: Siit Public API
+  version: v0
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    custom_form_input:
+      type: object
+      properties:
+        label:
+          type: string
+          description: The label of the custom form.
+        kind:
+          type: string
+          description: The type of the field.
+          enum:
+          - string
+          - text
+          - number
+          - select
+          - select_people
+          - select_application
+          - datepicker
+        value:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+          - type: number
+          description: The value for the field.
+          nullable: true
+    ticket:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: The UID of the Request.
+        title:
+          type: string
+          description: The title of the Request
+        description:
+          type: string
+          description: The description of the Request
+          nullable: true
+        submitted_from:
+          type: string
+          description: Describes how the request was submitted. "workflow" and "admin_dashboard"
+            cannot be created through the API.
+          enum:
+          - employee_portal
+          - slack
+          - mail
+          - ms_teams
+          - admin_dashboard
+          - workflow
+        author_uid:
+          type: string
+          description: The UID of the author. Required on create. If created through
+            API author must be equal to requester_uid OR an admin user.
+          nullable: true
+        requested_by_uid:
+          type: string
+          description: The UID of the requester, can be different from the Author
+            (e.g Admin submitting on behalf). Required on create
+          nullable: true
+        assigned_to_uid:
+          type: string
+          description: The UID of assigned admin or Team inbox.
+          nullable: true
+        mode:
+          type: string
+          description: Will be "public" only for Slack public threads for now.
+          enum:
+          - default
+          - public
+        custom_form_inputs:
+          type: array
+          description: Custom forms attached to this request.
+          items:
+            "$ref": "#/components/schemas/custom_form_input"
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: datetime formatted as ISO 8601 (e.g. "2020-12-15T03:34:13.000Z")
+    user:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: The UID of the User.
+        emails:
+          type: array
+          description: An array of all the known emails for this User.
+          items:
+            type: string
+        role_name:
+          type: string
+          description: The Slack user ID of the User (e.g. U0G9QF9C6).
+        full_name:
+          type: string
+          description: The full name of the User.
+          nullable: true
+        slack_user_id:
+          type: string
+          description: The Slack user ID of the User (e.g. U0G9QF9C6).
+          nullable: true
+        microsoft_extra_id:
+          type: string
+          description: The Microsoft Extra ID (Azure Directory ID) of the User.
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: datetime formatted as ISO 8601 (e.g. "2020-12-15T03:34:13.000Z")
+    created_ticket_object:
+      type: object
+      properties:
+        result:
+          "$ref": "#/components/schemas/ticket"
+    tickets_paged_object:
+      type: object
+      properties:
+        meta:
+          "$ref": "#/components/schemas/meta_object"
+        results:
+          type: array
+          items:
+            "$ref": "#/components/schemas/ticket"
+    users_paged_object:
+      type: object
+      properties:
+        meta:
+          "$ref": "#/components/schemas/meta_object"
+        results:
+          type: array
+          items:
+            "$ref": "#/components/schemas/user"
+    errors_object:
+      type: object
+      properties:
+        error:
+          type: string
+        troubleshoot:
+          type: string
+    meta_object:
+      type: object
+      properties:
+        count:
+          type: integer
+        total:
+          type: integer
+        current_page:
+          type: integer
+        per_page:
+          type: integer
+          default: 20
+          maximum: 50
+        next_page_link:
+          type: string
+          nullable: true
+        previous_page_link:
+          type: string
+          nullable: true
+paths:
+  "/v1/requests":
+    get:
+      summary: List all Requests
+      description: Fetch all Requests associated to a company
+      tags:
+      - Request
+      security:
+      - bearer: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: The current page
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results retrieved per page.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/tickets_paged_object"
+        '401':
+          description: unauthorized
+    post:
+      summary: Creates a Request
+      tags:
+      - Request
+      description: Please note that author_uid should be the same as requested_by_uid
+        OR reference a User with an admin role
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: Request created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/created_ticket_object"
+        '400':
+          description: missing or invalid param
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_object"
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_object"
+        '422':
+          description: author not requester nor admin
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_object"
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uid:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                submitted_from:
+                  type: string
+                author_uid:
+                  type: string
+              required:
+              - title
+              - submitted_from
+              - author_uid
+              - requested_by_uid
+  "/v1/requests/{uid}":
+    parameters:
+    - name: uid
+      in: path
+      description: The UID of the request
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Retrieve a Request
+      tags:
+      - Request
+      description: Please note archived requests are NOT returned.
+      security:
+      - bearer: []
+      responses:
+        '200':
+          description: Request show
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ticket"
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_object"
+  "/v1/users":
+    get:
+      summary: List all Users
+      description: Fetch all Users associated to a company
+      tags:
+      - User
+      security:
+      - bearer: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: The current page
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results retrieved per page.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/users_paged_object"
+        '401':
+          description: unauthorized
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: api.siit.io

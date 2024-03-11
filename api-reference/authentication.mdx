@@ -1,0 +1,28 @@
+---
+title: 'Authentication'
+description: 'Start interacting with our API'
+---
+
+## Get your API key
+
+Once we have given you access to the API, you can head over to your Siit dashboard and generate an API key at [this link](https://app.siit.io/settings/account/security).
+
+Please note that only the _owner_ of the account can do this. Any re-generation will expire the previously generate key.
+
+You would then use this API key as a Bearer Token:
+
+<AccordionGroup>
+  <Accordion icon="rectangle-terminal" title="Testing communication">
+    Once you have your key, you can ru the following command in a shell to ensure all is properly setup:
+
+    ```
+    curl -H "Authorization: Bearer YOUR_BEARER_TOKEN" https://api.siit.io/ping
+    ```
+
+    If the token is valid, the result should be:
+    ```json
+    {"result":"pong"}
+    ```
+  </Accordion>
+</AccordionGroup>
+

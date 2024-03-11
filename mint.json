@@ -33,6 +33,11 @@
   ],
   "anchors": [
     {
+      "name": "Home",
+      "icon": "house-user",
+      "url": "https://www.siit.io"
+    },
+    {
       "name": "Blog",
       "icon": "newspaper",
       "url": "https://www.siit.io/blog"

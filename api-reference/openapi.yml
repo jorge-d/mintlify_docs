@@ -251,6 +251,18 @@ paths:
                   type: string
                 author_uid:
                   type: string
+                custom_form_inputs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                    - label
+                    - value
               required:
               - title
               - submitted_from

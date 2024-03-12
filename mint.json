@@ -77,5 +77,6 @@
   "footerSocials": {
     "linkedin": "https://www.linkedin.com/company/siit-app",
     "instagram": "https://www.instagram.com/siit_app/"
-  }
+  },
+  "isWhiteLabeled": true
 }

@@ -59,6 +59,8 @@ components:
           - ms_teams
           - admin_dashboard
           - workflow
+          - public_api
+          - external
         author_uid:
           type: string
           description: The UID of the author. Required on create. If created through
@@ -249,6 +251,11 @@ paths:
                   type: string
                 submitted_from:
                   type: string
+                  enum:
+                  - employee_portal
+                  - slack
+                  - mail
+                  - ms_teams
                 author_uid:
                   type: string
                 custom_form_inputs:

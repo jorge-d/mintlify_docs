@@ -50,8 +50,7 @@ components:
           nullable: true
         submitted_from:
           type: string
-          description: Describes how the request was submitted. "workflow" and "admin_dashboard"
-            cannot be created through the API.
+          description: Describes how the request was submitted.
           enum:
           - employee_portal
           - slack
@@ -63,13 +62,11 @@ components:
           - external
         author_uid:
           type: string
-          description: The UID of the author. Required on create. If created through
-            API author must be equal to requester_uid OR an admin user.
+          description: The UID of the author.
           nullable: true
         requested_by_uid:
           type: string
-          description: The UID of the requester, can be different from the Author
-            (e.g Admin submitting on behalf). Required on create
+          description: The UID of the requester.
           nullable: true
         assigned_to_uid:
           type: string
@@ -77,7 +74,7 @@ components:
           nullable: true
         mode:
           type: string
-          description: Will be "public" only for Slack public threads for now.
+          description: Will be "public" only for Slack public threads (for now).
           enum:
           - default
           - public
@@ -104,7 +101,16 @@ components:
             type: string
         role_name:
           type: string
-          description: The Slack user ID of the User (e.g. U0G9QF9C6).
+          description: The role of the User.
+          enum:
+          - hr
+          - it
+          - finance
+          - ops
+          - custom
+          - user
+          - admin
+          - owner
         full_name:
           type: string
           description: The full name of the User.
@@ -243,8 +249,6 @@ paths:
             schema:
               type: object
               properties:
-                uid:
-                  type: string
                 title:
                   type: string
                 description:
@@ -258,8 +262,16 @@ paths:
                   - ms_teams
                 author_uid:
                   type: string
+                  description: must be equal to requester_uid OR an reference an admin
+                    user.
+                requested_by_uid:
+                  type: string
+                  description: can be different from the author_uid (e.g Admin submitting
+                    on behalf)
                 custom_form_inputs:
                   type: array
+                  description: An optionnal array containing data attached to the
+                    request
                   items:
                     type: object
                     properties:

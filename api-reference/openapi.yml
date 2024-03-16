@@ -72,6 +72,9 @@ components:
           type: string
           description: The UID of assigned admin or Team inbox.
           nullable: true
+        admin_permalink_url:
+          type: string
+          description: The link to the request in Siit admin dashboard.
         mode:
           type: string
           description: Will be "public" only for Slack public threads (for now).
@@ -287,6 +290,69 @@ paths:
               - submitted_from
               - author_uid
               - requested_by_uid
+  "/v1/requests/slack":
+    post:
+      summary: Creates a Request directly using Slack informations
+      tags:
+      - Request
+      description: Shorthand route for when using Slack Automations.
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: Request created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/created_ticket_object"
+        '400':
+          description: missing or invalid param
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_object"
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_object"
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                slack_user_id:
+                  type: string
+                  description: the Slack User ID of the requester
+                slack_channel_id:
+                  type: string
+                  description: the Slack Channel ID that is linked to the request
+                custom_form_inputs:
+                  type: array
+                  description: An optionnal array containing data attached to the
+                    request
+                  items:
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                    - label
+                    - value
+              required:
+              - title
+              - slack_user_id
   "/v1/requests/{uid}":
     parameters:
     - name: uid

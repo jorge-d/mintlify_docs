@@ -63,9 +63,10 @@
     {
       "group": "Request",
       "pages": [
+        "api-reference/request/creates-a-request",
+        "api-reference/request/creates-a-request-directly-using-slack-informations",
         "api-reference/request/list-all-requests",
-        "api-reference/request/retrieve-a-request",
-        "api-reference/request/creates-a-request"
+        "api-reference/request/retrieve-a-request"
       ]
     },
     {
